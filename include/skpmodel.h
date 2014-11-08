@@ -33,19 +33,17 @@ class SkpModel {
 			SUResult res = SUModelCreateFromFile(&model_, model_filename);
 			if (res != SU_ERROR_NONE)
 				std::cout <<"Error encountered in loading model \n";
+			CountAllComponents();
+			faces_.reserve(num_faces_);
+			LoadFaces();
 		}
 
 		virtual ~SkpModel(void){
 			SUModelRelease(&model_);
 		}
 
-		//Counting the different components
-		int count_all_components();
-		int count_all_components_entities(SUEntitiesRef entitites);
 		void print_all_counts();
 
-		//Load faces
-		int load_all_faces();
 
 		//Texture
 
@@ -96,6 +94,8 @@ class SkpModel {
 		size_t num_instances_, num_guides_, num_images_;
 		SUTextureWriterRef texture_writer_;
 		SUModelRef model_ = SU_INVALID;
+		std::vector<SUEntitiesRef> entities_; 
+		std::vector<SUFaceRef> faces_;
 
 		void InitializeModel(){
 			num_instances_ = 0;
@@ -111,6 +111,14 @@ class SkpModel {
 				std::cout << "Error in intializing texture writer";
 			}
 		}
+
+		int LoadEntitiesRecursive(SUEntitiesRef entities);
+		int LoadFaces();
+		int LoadEntities();
+		
+		//Counting the different components
+		int CountAllComponents();
+		int Entities2AllComponentCount(SUEntitiesRef entitites);
 };
 
 

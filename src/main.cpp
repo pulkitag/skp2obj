@@ -18,7 +18,6 @@ int main(int argc, char* argv[]) {
   SUInitialize();
 	
 	SkpModel myModel = SkpModel(model_name);
-	myModel.count_all_components();
 	myModel.print_all_counts();
 
 	/*

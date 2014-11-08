@@ -66,5 +66,16 @@ int Instances2Entities(std::vector<SUComponentInstanceRef>* instances, std::vect
 	}
 	return 0;
 }
+
+
+int Groups2Entities(std::vector<SUGroupRef>* groups, std::vector<SUEntitiesRef>* entities){
 	
+	size_t groupCount = groups->size();
+	for (size_t i=0; i < groupCount; i++){
+		SUGroupRef group = (*groups)[i];
+		SUGroupGetEntities(group, &((*entities)[i]));
+	}
+
+	return 0;
+}	
 
