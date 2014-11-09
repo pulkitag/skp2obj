@@ -1,6 +1,6 @@
 #!/bin/bash
 
-g++ -stdlib=libstdc++ -Wc++11-extensions src/main.cpp src/objtexturehelper.cpp src/modelUtils.cpp src/skpmodel.cpp src/geomutils.cpp -o build/skp2obj -Iinclude/ -framework slapi
+g++ -stdlib=libstdc++ -Wc++11-extensions src/main.cpp src/objtexturehelper.cpp src/modelUtils.cpp src/skpmodel.cpp src/geomutils.cpp src/objwriter.cpp -o build/skp2obj -Iinclude/ -framework slapi
 #g++ -stdlib=libstdc++ src/main.cpp src/objtexturehelper.cpp -o build/skp2obj -Iinclude/
 
 

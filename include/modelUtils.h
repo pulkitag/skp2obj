@@ -16,16 +16,21 @@
 #include <slapi/model/face.h>
 #include <slapi/model/edge.h>
 #include <slapi/model/vertex.h>
+#include <slapi/model/texture.h>
+#include <slapi/model/mesh_helper.h>
+#include <slapi/model/texture_writer.h>
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include "geomutils.h"
 
 int getModelInfo(SUEntitiesRef entities);
 int Instances2Entities(std::vector<SUComponentInstanceRef>* instances, std::vector<SUEntitiesRef>* entities);
 int Groups2Entities(std::vector<SUGroupRef>* groups, std::vector<SUEntitiesRef>* entities);
+void ErrorHandler(SUResult res);
+size_t Face2NumVertices(SUFaceRef face);
 
-template <typename Dtype>
-class VecStore {
+template <typename Dtype> class VecStore {
 	public:
 		VecStore(){
 			idx_ = 0;
@@ -38,30 +43,43 @@ class VecStore {
 			x_.reserve(maxElms);
 		}
 
-		virtual ~VecStore();
+		virtual ~VecStore(){};
 
-		void add(Dtype elm){
-			bool existFlag = false;
-			for (int i=0; i<idx_; i++){
-				if (x_[i] == elm)
-					existFlag = true;	
-			}
+		void add(Dtype elm);
+		void add(SUVertexRef vertex);
+		void add(SUVector3D vec);
+		void add(SUPoint3D pt);
 
-			if (!existFlag){
-				x_.append(elm);
-				idx_ += 1;
-			}
-			assert(idx_ < maxSz_);
-		}
+		size_t length() const {return x_.size();}
 
 		void add(std::vector<Dtype> elm){
 			for (int i=0; i<elm.size(); i++)
-				x_.add(elm[i]);
+				add(elm[i]);
+		}
+		void add(std::vector<SUVertexRef> vertex){
+			for (int i=0; i<vertex.size(); i++)
+				add(vertex[i]);
+		}
+		void add(std::vector<SUVector3D> vec){
+			for (int i=0; i<vec.size(); i++)
+				add(vec[i]);
+		}
+		void add(std::vector<SUPoint3D> pt){
+			for (int i=0; i<pt.size(); i++)
+				add(pt[i]);
 		}
 
-		Dtype get(size_t idx){
+		Dtype get(size_t idx) const{
 			assert(idx < idx_);
 			return x_[idx];
+		}
+
+		size_t get_index(Dtype elm) const{
+			for (size_t i=0; i<idx_; i++){
+				if (elm == x_[i])
+					return i;
+			}
+			std::cout <<"Element Not Found \n";
 		}
 
 	private:

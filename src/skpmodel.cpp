@@ -1,5 +1,6 @@
 #include "skpmodel.h"
 #include "modelUtils.h"
+#include "objwriter.h"
 
 int SkpModel::CountAllComponents(){
 	int out = 0;
@@ -195,9 +196,109 @@ int SkpModel::LoadEntitiesRecursive(SUEntitiesRef entities){
 
 int SkpModel::LoadFaces(){
 	int out = 0;
-	for (int i=0; i<entities_.size(); i++){
-		
-	}
+	SUResult res;
 
+	for (int i=0; i<entities_.size(); i++){
+		size_t num_faces;
+		SUEntitiesGetNumFaces(entities_[i], &num_faces);
+		if (num_faces > 0){
+			std::vector<SUFaceRef> faces(num_faces);
+			res = SUEntitiesGetFaces(entities_[i], num_faces, &faces[0], &num_faces);
+			if (res != SU_ERROR_NONE)
+				std::cout << "Error in loading faces \n";
+
+			for (int j=0; j<faces.size(); j++)
+				faces_.push_back(faces[j]);
+			
+			/*
+			std::cout << num_faces << "\n";
+			SUMeshHelperRef mesh = SU_INVALID;
+			std::cout << "Here \n";
+			res = SUMeshHelperCreate(&mesh, faces[0]);
+			size_t num_vertices;
+			SUMeshHelperGetNumVertices(mesh, &num_vertices);
+			SUMeshHelperRelease(&mesh);
+			*/
+		}
+	}
 	return out;
 }
+
+int SkpModel::LoadVertices(){
+	SUResult res;
+	int out = 0;
+
+	for (int f=0; f<faces_.size(); f++){
+		//Form the mesh
+		SUMeshHelperRef mesh = SU_INVALID;
+		res = SUMeshHelperCreate(&mesh, faces_[f]);
+		ErrorHandler(res);
+		
+		// Get number of vertices. 
+		size_t num_vertices;
+		res = SUMeshHelperGetNumVertices(mesh, &num_vertices);
+		ErrorHandler(res);
+
+		//Get vertices.
+		std::vector<SUPoint3D>   vertices(num_vertices);
+		res = SUMeshHelperGetVertices(mesh, num_vertices, &vertices[0], &num_vertices);
+		ErrorHandler(res);
+		vertices_.add(vertices);
+		
+		//Get Normals
+		std::vector<SUVector3D>  normals(num_vertices);
+		res = SUMeshHelperGetNormals (mesh, num_vertices, &normals[0], &num_vertices);
+		ErrorHandler(res);
+		normals_.add(normals);
+		
+		SUMeshHelperRelease(&mesh);
+		//*/
+		/*
+		size_t num_vertices;
+		SUFaceGetNumVertices(faces_[f], &num_vertices);
+		std::vector<SUVertexRef> vertices(num_vertices);
+		SUFaceGetVertices(faces_[f], num_vertices, &vertices[0], &num_vertices);
+		vertices_.add(vertices);
+		*/
+
+	}
+	return out;
+}
+
+int SkpModel::Face2AttributeIndices(SUFaceRef face, std::vector<size_t>* vertIdxs, std::vector<size_t>* normalIdxs){
+	int out = 0;
+	SUResult res;
+
+	//Form the mesh
+	SUMeshHelperRef mesh = SU_INVALID;
+	res = SUMeshHelperCreate(&mesh, face);
+	ErrorHandler(res);
+	
+	// Get number of vertices. 
+	size_t num_vertices;
+	res = SUMeshHelperGetNumVertices(mesh, &num_vertices);
+	ErrorHandler(res);
+
+	//Get vertices.
+	std::vector<SUPoint3D>   vertices(num_vertices);
+	res = SUMeshHelperGetVertices(mesh, num_vertices, &vertices[0], &num_vertices);
+	ErrorHandler(res);
+	
+	//Get Normals
+	std::vector<SUVector3D>  normals(num_vertices);
+	res = SUMeshHelperGetNormals (mesh, num_vertices, &normals[0], &num_vertices);
+	ErrorHandler(res);
+	
+	SUMeshHelperRelease(&mesh);
+	assert(vertIdxs->size() == num_vertices);
+
+	for (size_t i =0; i < num_vertices; i++){
+		vertIdxs->at(i)   = vertices_.get_index(vertices[i]);
+		normalIdxs->at(i) = normals_.get_index(normals[i]);
+	}
+
+	return out;	
+}
+
+
+

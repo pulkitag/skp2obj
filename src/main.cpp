@@ -3,6 +3,7 @@
 #include "objtexturehelper.h"
 #include "modelUtils.h"
 #include "skpmodel.h"
+#include "objwriter.h"
 
 int main(int argc, char* argv[]) {
   //Get Model Name
@@ -19,6 +20,13 @@ int main(int argc, char* argv[]) {
 	
 	SkpModel myModel = SkpModel(model_name);
 	myModel.print_all_counts();
+
+	char* outFile = "tmp/myobj.obj";
+	ObjWriter writer(outFile);
+	writer.WriteHeader();
+	writer.WriteModel(&myModel);
+			
+
 
 	/*
   // Load the model from a file

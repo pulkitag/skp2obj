@@ -77,5 +77,72 @@ int Groups2Entities(std::vector<SUGroupRef>* groups, std::vector<SUEntitiesRef>*
 	}
 
 	return 0;
-}	
+}
+
+template <typename Dtype>
+void VecStore<Dtype>::add(Dtype elm){
+	bool existFlag = false;
+	for (int i=0; i<idx_; i++){
+		if (x_[i] == elm)
+			existFlag = true;	
+	}
+
+	if (!existFlag){
+		x_.push_back(elm);
+		idx_ += 1;
+	}
+	//assert(idx_ < maxSz_);
+}
+
+template <>
+void VecStore<GeomUtils::CPoint3d>::add(SUVertexRef vertex){
+
+	SUPoint3D position;
+	SUVertexGetPosition(vertex, &position);
+
+	GeomUtils::CPoint3d point(position);
+	add(point);
+}
+
+template <>
+void VecStore<GeomUtils::CVector3d>::add(SUVector3D vec){
+	GeomUtils::CVector3d vect(vec);
+	add(vect);
+}
+
+template <>
+void VecStore<GeomUtils::CPoint3d>::add(SUPoint3D pt){
+	GeomUtils::CPoint3d point(pt);
+	add(point);
+}
+
+
+void ErrorHandler(SUResult res){
+	if (res == SU_ERROR_NONE)
+			return;
+
+	std::cout << "ERROR DETECTED \n";
+	if (res == SU_ERROR_NULL_POINTER_OUTPUT)
+		std::cout << "Error: Null Pointer Output \n";
+	if (res == SU_ERROR_OVERWRITE_VALID)
+		std::cout << "SU_ERROR_OVERWRITE_VALID \n";
+}
+
+size_t Face2NumVertices(SUFaceRef face){
+	SUResult res;
+
+	//Form the mesh
+	SUMeshHelperRef mesh = SU_INVALID;
+	res = SUMeshHelperCreate(&mesh, face);
+	ErrorHandler(res);
+	
+	// Get number of vertices. 
+	size_t num_vertices;
+	res = SUMeshHelperGetNumVertices(mesh, &num_vertices);
+	ErrorHandler(res);
+
+	SUMeshHelperRelease(&mesh);
+	
+	return num_vertices;
+}
 

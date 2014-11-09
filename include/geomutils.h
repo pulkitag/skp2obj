@@ -13,6 +13,7 @@ class CVector3d {
  public:
 
   CVector3d(): x_(0.0), y_(0.0), z_(0.0) {}
+  CVector3d(SUVector3D pt) : x_(pt.x), y_(pt.y), z_(pt.z) {}
   CVector3d(double x, double y, double z): x_(x), y_(y), z_(z) {}
   ~CVector3d() {}
 

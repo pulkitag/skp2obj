@@ -3,23 +3,7 @@
 
 #ifndef SKP2OBJ_SKPMODEL_H
 #define SKP2OBJ_SKPMODEL_H
-
-#include <slapi/slapi.h>
-#include <slapi/model/component_definition.h>
-#include <slapi/model/component_instance.h>
-#include <slapi/geometry.h>
-#include <slapi/initialize.h>
-#include <slapi/unicodestring.h>
-#include <slapi/model/model.h>
-#include <slapi/model/entities.h>
-#include <slapi/model/face.h>
-#include <slapi/model/edge.h>
-#include <slapi/model/group.h>
-#include <slapi/model/vertex.h>
-#include <slapi/model/texture.h>
-#include <slapi/model/texture_writer.h>
-#include <vector>
-#include <iostream>
+#include "modelUtils.h"
 
 class SkpModel {
 	
@@ -36,6 +20,7 @@ class SkpModel {
 			CountAllComponents();
 			faces_.reserve(num_faces_);
 			LoadFaces();
+			LoadVertices();
 		}
 
 		virtual ~SkpModel(void){
@@ -45,7 +30,24 @@ class SkpModel {
 		void print_all_counts();
 
 
-		//Texture
+		int LoadVertices();
+		//void WriteVertices();
+
+		const std::vector<SUFaceRef>* GetFaces() { return &faces_;}
+
+		VecStore<GeomUtils::CPoint3d>* GetVertices(){
+			VecStore<GeomUtils::CPoint3d>* vertice_pointer = &vertices_;
+			return vertice_pointer;
+		}
+
+		VecStore<GeomUtils::CVector3d>* GetNormals(){
+			VecStore<GeomUtils::CVector3d>* normals_pointer = &normals_;
+			return normals_pointer;
+		}
+
+		int Face2AttributeIndices(SUFaceRef face, std::vector<size_t>* vertIdxs, std::vector<size_t>* normalIdxs);
+		//int Face2VertexIndices(SUFaceRef face);
+		//int Face2NormalIndices(SUFaceRef face);
 
 		inline size_t GetNumGroups() const    { return num_groups_; }
 		inline size_t GetNumInstances() const {return num_instances_;}
@@ -96,6 +98,8 @@ class SkpModel {
 		SUModelRef model_ = SU_INVALID;
 		std::vector<SUEntitiesRef> entities_; 
 		std::vector<SUFaceRef> faces_;
+		VecStore<GeomUtils::CPoint3d> vertices_;
+		VecStore<GeomUtils::CVector3d> normals_;
 
 		void InitializeModel(){
 			num_instances_ = 0;
