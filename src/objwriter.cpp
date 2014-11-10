@@ -47,5 +47,22 @@ void ObjWriter::WriteFaces(SkpModel* model){
 			fid_ << vIdx[i] + 1 << "//" << nIdx[i] + 1 << "\t";
 		}
 		fid_ <<"\n";
+		GetFaceFrontMaterial((*faces)[f]);
+	}
+}
+
+void ObjWriter::WriteMaterial(Material mat){
+
+	fid_ << "newmtl \t" << mat.GetName() << "\n";
+	const Color Ka = mat.GetKa();
+	const Color Kd = mat.GetKd();
+	const Color Ks = mat.GetKs();
+	fid_ << "Ka \t" << Ka.r() << "\t" << Ka.g() << "\t" << Ka.b() << "\n";
+	fid_ << "Kd \t" << Kd.r() << "\t" << Kd.g() << "\t" << Kd.b() << "\n";
+	fid_ << "Ks \t" << Ks.r() << "\t" << Ks.g() << "\t" << Ks.b() << "\n";
+
+	const SUMaterialType type = mat.GetType();
+	if (type == SUMaterialType_Textured || type == SUMaterialType_ColorizedTexture){
+		
 	}
 }

@@ -17,6 +17,7 @@
 #include <slapi/model/edge.h>
 #include <slapi/model/vertex.h>
 #include <slapi/model/texture.h>
+#include <slapi/model/material.h>
 #include <slapi/model/mesh_helper.h>
 #include <slapi/model/texture_writer.h>
 #include <iostream>
@@ -29,6 +30,10 @@ int Instances2Entities(std::vector<SUComponentInstanceRef>* instances, std::vect
 int Groups2Entities(std::vector<SUGroupRef>* groups, std::vector<SUEntitiesRef>* entities);
 void ErrorHandler(SUResult res);
 size_t Face2NumVertices(SUFaceRef face);
+bool IsFaceFrontTexture(SUFaceRef face);
+bool IsFaceBackTexture(SUFaceRef face);
+void GetFaceFrontMaterial(SUFaceRef face);
+std::string GetMaterialName(SUMaterialRef material);
 
 template <typename Dtype> class VecStore {
 	public:

@@ -52,6 +52,26 @@ int getModelInfo(SUEntitiesRef entities){
 
 }
 
+
+std::string SUString2String(SUStringRef s){
+	SUResult res;
+	size_t len;
+	std::string sss;
+	res = SUStringGetUTF8Length(s, &len);
+	ErrorHandler(res);
+
+	if (len > 0){
+		char ss[len];
+		SUStringGetUTF8(s, len, &ss[0], &len);
+		sss.assign(ss); 
+	}else{
+		sss = "";
+	}
+
+		return sss;
+}
+
+
 int Instances2Entities(std::vector<SUComponentInstanceRef>* instances, std::vector<SUEntitiesRef>* entities){
 
 	size_t instanceCount = instances->size();
@@ -122,10 +142,26 @@ void ErrorHandler(SUResult res){
 			return;
 
 	std::cout << "ERROR DETECTED \n";
-	if (res == SU_ERROR_NULL_POINTER_OUTPUT)
-		std::cout << "Error: Null Pointer Output \n";
-	if (res == SU_ERROR_OVERWRITE_VALID)
-		std::cout << "SU_ERROR_OVERWRITE_VALID \n";
+	switch (res){
+		case SU_ERROR_NULL_POINTER_OUTPUT:
+			std::cout << "Error: Null Pointer Output \n";
+			break;
+		case SU_ERROR_OVERWRITE_VALID:
+			std::cout << "SU_ERROR_OVERWRITE_VALID \n";
+			break;
+		case SU_ERROR_INVALID_INPUT:
+			std::cout << "SU_ERROR_INVALID_INPUT \n";
+			break;
+		case SU_ERROR_NULL_POINTER_INPUT:
+			std::cout << "SU_ERROR_NULL_POINTER_INPUT \n";
+			break;
+		case SU_ERROR_INVALID_OUTPUT:
+			std::cout << "SU_ERROR_INVALID_OUTPUT \n";
+			break;
+		default:
+			std::cout << "Unlisted Error \n";
+	}
+	exit(EXIT_FAILURE);
 }
 
 size_t Face2NumVertices(SUFaceRef face){
@@ -144,5 +180,103 @@ size_t Face2NumVertices(SUFaceRef face){
 	SUMeshHelperRelease(&mesh);
 	
 	return num_vertices;
+}
+
+
+
+bool IsFaceFrontTexture(SUFaceRef face){
+	bool out;
+	SUResult res;
+	SUMaterialRef material = SU_INVALID;
+	res = SUFaceGetFrontMaterial(face, &material);
+
+	if (res == SU_ERROR_NONE)
+		out = true;
+	if (res == SU_ERROR_NULL_POINTER_OUTPUT)
+		out = false;
+
+	SUMaterialRelease(&material);
+	return out;
+
+}
+
+
+bool IsFaceBackTexture(SUFaceRef face){
+	bool out;
+	SUResult res;
+	SUMaterialRef material = SU_INVALID;
+	res = SUFaceGetBackMaterial(face, &material);
+
+	if (res == SU_ERROR_NONE)
+		out = true;
+	if (res == SU_ERROR_NULL_POINTER_OUTPUT)
+		out = false;
+
+	SUMaterialRelease(&material);
+	return out;
+}
+
+
+std::string StringReplace(std::string in, std::string find, std::string replace) {
+    while(true) {
+        size_t pos = in.find(find);
+        if(pos == -1)
+            break;
+        
+        in = in.substr(0,pos) + replace + in.substr(pos+find.length());
+    }
+    return in;
+}
+
+std::string GetMaterialName(SUMaterialRef material){
+	SUResult res;
+	std::string sName = "";
+
+	SUStringRef name = SU_INVALID;
+	res = SUStringCreate(&name);
+	ErrorHandler(res);
+
+	res = SUMaterialGetName(material, &name);
+	ErrorHandler(res);
+	
+	size_t len;
+	res = SUStringGetUTF8Length(name, &len);
+	ErrorHandler(res);
+
+	if (len > 0){
+		sName = SUString2String(name);
+		sName = StringReplace(sName, "*", "_"); 
+	}
+	
+	res = SUStringRelease(&name);
+	ErrorHandler(res);
+
+	return sName;
+}
+
+void GetFaceFrontMaterial(SUFaceRef face){
+	SUResult res;
+	SUMaterialRef material = SU_INVALID;
+	res = SUFaceGetFrontMaterial(face, &material);
+	
+	if (res == SU_ERROR_NONE){
+
+		std::cout << GetMaterialName(material) <<  "\n";
+
+		bool use_opacity;
+		res = SUMaterialGetUseOpacity(material, &use_opacity);
+		ErrorHandler(res);
+
+		SUMaterialType type;
+		res = SUMaterialGetType(material, &type);
+		ErrorHandler(res);
+
+		SUColor color;
+		res = SUMaterialGetColor(material, &color);
+		ErrorHandler(res);
+		std::cout << (unsigned int)color.red << "\t" << (unsigned int)color.green << "\t" << (unsigned int)color.blue << "\n"; 
+			
+	}
+
 }
 

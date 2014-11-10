@@ -4,6 +4,7 @@
 #ifndef SKP2OBJ_SKPMODEL_H
 #define SKP2OBJ_SKPMODEL_H
 #include "modelUtils.h"
+#include "materials.h"
 
 class SkpModel {
 	
@@ -95,7 +96,7 @@ class SkpModel {
 		size_t num_groups_, num_edges_, num_faces_, num_curves_;
 		size_t num_instances_, num_guides_, num_images_;
 		SUTextureWriterRef texture_writer_;
-		SUModelRef model_ = SU_INVALID;
+		SUModelRef model_;
 		std::vector<SUEntitiesRef> entities_; 
 		std::vector<SUFaceRef> faces_;
 		VecStore<GeomUtils::CPoint3d> vertices_;
@@ -110,6 +111,7 @@ class SkpModel {
 			num_guides_    = 0;
 			num_images_    = 0;
 			num_definitions_ = 0;
+			model_.ptr = 0;
 			SUResult res = SUTextureWriterCreate(&texture_writer_);
 			if (res!= SU_ERROR_NONE){
 				std::cout << "Error in intializing texture writer";

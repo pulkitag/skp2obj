@@ -3,6 +3,7 @@
 
 #include "modelUtils.h"
 #include "skpmodel.h"
+#include "materials.h"
 #include<fstream>
 
 class ObjWriter {
@@ -22,6 +23,7 @@ class ObjWriter {
 		void WriteFaces(SkpModel* model);
 		void WriteVertices(VecStore<GeomUtils::CPoint3d>* verts);
 		void WriteNormals (VecStore<GeomUtils::CVector3d>* normals);
+		void WriteMaterial (Material mat);
 
 	private:
 		char* name_;
