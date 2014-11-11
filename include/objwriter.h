@@ -30,7 +30,7 @@ class ObjWriter {
 		void WriteVertices(VecStore<GeomUtils::CPoint3d>* verts);
 		void WriteNormals (VecStore<GeomUtils::CVector3d>* normals);
 		void WriteAllMaterials (SkpModel* model);
-		void WriteMaterial (Material mat);
+		void WriteMaterial (Material* mat);
 
 	private:
 		std::ofstream fid_;

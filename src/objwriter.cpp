@@ -60,38 +60,41 @@ void ObjWriter::WriteAllMaterials(SkpModel* model){
 		WriteMaterial(x.second);
 }
 
-void ObjWriter::WriteMaterial(Material mat){
+void ObjWriter::WriteMaterial(Material* mat){
 	SUResult res;
 	//fid_mtl_.precision(6);
-	fid_mtl_ << "newmtl \t" << mat.GetName() << "\n";
-	const Color Ka = mat.GetKa();
-	const Color Kd = mat.GetKd();
-	const Color Ks = mat.GetKs();
+	fid_mtl_ << "newmtl \t" << mat->GetName() << "\n";
+	const Color Ka = mat->GetKa();
+	const Color Kd = mat->GetKd();
+	const Color Ks = mat->GetKs();
 	fid_mtl_ << "Ka \t" << Ka.r() << "\t" << Ka.g() << "\t" << Ka.b() << "\n";
 	fid_mtl_ << "Kd \t" << Kd.r() << "\t" << Kd.g() << "\t" << Kd.b() << "\n";
 	fid_mtl_ << "Ks \t" << Ks.r() << "\t" << Ks.g() << "\t" << Ks.b() << "\n";
 
-	const bool is_opacity = mat.GetIsOpacity();
+	const bool is_opacity = mat->GetIsOpacity();
 	if (is_opacity){
-		fid_mtl_ << "d \t" << mat.GetAlpha();
+		fid_mtl_ << "d \t" << mat->GetAlpha();
 	}
 
-	/*
-	const SUMaterialType type = mat.GetType();
+	
+	const SUMaterialType type = mat->GetType();
 	if (type == SUMaterialType_Textured || type == SUMaterialType_ColorizedTexture){
-		SUStringRef name = SU_INVALID;
-		res = SUStringCreate(&name);
-		ErrorHandler(res);
-		
-		SUTextureRef texture = mat.GetTexture();
-		res = SUTextureGetFileName(texture, &name);
-		ErrorHandler(res);
-		string fileName =  SUString2String(name);	
-		SUStringRelease(&name);
-		assert(fileName != "");
+		SUTextureRef texture = SU_INVALID;
+		const Texture* matTex = mat->GetTexture();
 
-		SUTextureWriteToFile(texture, fileName.c_str());
+		std::cout << "Width: " << matTex->width() << "Height: " << matTex->height()
+			<< "bits: " << matTex->bits_per_pixel() << "\n";
+		res = SUTextureCreateFromImageData(&texture, matTex->width(), matTex->height(),
+																			  matTex->bits_per_pixel(), matTex->data());
+		ErrorHandler(res);
+	
+		std::string outname = "tmp/" + matTex->name(); 	
+		res = SUTextureWriteToFile(texture, outname.c_str());
+		res = SUTextureRelease(&texture);
+
+		fid_mtl_ << "map_Kd \t" << matTex->name() << "\n";
+		
 	}
-	*/
+	//*/
 	fid_mtl_ << "\n";
 }

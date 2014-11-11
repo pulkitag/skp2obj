@@ -93,8 +93,10 @@ std::string SUString2String(SUStringRef s){
 	size_t len, wlen;
 	std::string sss;
 	res = SUStringGetUTF8Length(s, &len);
+	//std::cout << "Loc 3 \n";
 	ErrorHandler(res);
 	res = SUStringGetUTF16Length(s, &wlen);
+	//std::cout << "Loc 4 \n";
 	ErrorHandler(res);
 
 	if (len > 0){

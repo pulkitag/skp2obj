@@ -22,6 +22,29 @@ class Color{
 		double r_, g_, b_;
 };
 
+class Texture{
+	public:
+		Texture(){};
+		Texture(SUTextureRef texture);
+		~Texture(){if (imsize_> 0) delete data_;}
+
+		size_t width() const  {return width_;}
+		size_t height()const  {return height_;}
+		size_t bits_per_pixel() const {return bits_per_pixel_;}
+		size_t imsize() const {return imsize_;}
+		string name()   const {return name_;}
+		SUByte* data()  const {return data_;}
+	
+		void add_imdata(SUTextureRef texture);	
+
+	private:
+		size_t width_, height_;
+		size_t bits_per_pixel_ = 0;
+		size_t imsize_= 0;
+		SUByte* data_;
+		string name_;
+};
+
 class Material{
 	public:
 		Material(){
@@ -29,7 +52,12 @@ class Material{
 		}
 
 		Material(SUMaterialRef material);
-		virtual ~Material() {SUTextureRelease(&texture_);}
+		~Material() { 
+			if(is_kdmap_ && texture_ != NULL){ 
+				std::cout << "Calling MAterial Destructor \n";
+				delete texture_;
+			}
+		}
 
 		//Set Functions. 
 		void SetKa(SUColor col){ka_ = Color(col);}
@@ -39,7 +67,7 @@ class Material{
 		void SetAlpha(double alpha) {alpha_ = alpha;}
 		void SetIsOpacity(bool is_opacity) {is_opacity_ = is_opacity;}
 		void SetType(SUMaterialType type) {type_ = type;}
-		void SetTexture(SUTextureRef* texture) {texture_ = *texture;}
+		//void SetTexture(SUTextureRef& texture) {texture_ = texture;}
 
 		//Get Functions. 
 	  string GetName() {return name_;}
@@ -49,19 +77,20 @@ class Material{
 		const Color  GetKd() {return kd_;}
 		const Color  GetKs() {return ks_;}
 		const SUMaterialType  GetType() {return type_;}
-		const SUTextureRef GetTexture() {return texture_;}
+		const Texture* GetTexture() {return texture_;}
 
 	private:
 		Color ka_ = Color(0.0, 0.0, 0.0); 
 		Color kd_ = Color(0.0, 0.0, 0.0);
 		Color ks_ = Color(0.33,0.33,0.33);
 		string name_;
+		bool is_kdmap_   = false;
 		bool is_opacity_ = false;
 		double alpha_ = 1.0;
 		SUMaterialType type_;
-		SUTextureRef texture_ = SU_INVALID;
+		Texture* texture_;
 
 };
 
-typedef std::unordered_map<std::string, Material> MaterialMap;
+typedef std::unordered_map<std::string, Material*> MaterialMap;
 #endif //SKP2OBJ_MATERIALS_H

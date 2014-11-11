@@ -311,7 +311,7 @@ int SkpModel::AddMaterial(SUMaterialRef mat){
 	}
 
 	//std::cout << name << "\n";
-	Material MyMat = Material(mat);
+	Material* MyMat = new Material(mat);
 	//std::cout << "Material Created" << "\n";
 	mmap_.emplace(name, MyMat);
 	//std::cout << "Material Added" << "\n";

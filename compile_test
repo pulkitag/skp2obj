@@ -1,6 +1,6 @@
 #!/bin/bash
 
-g++ -stdlib=libstdc++ -Wc++11-extensions src/simple_test.cpp -o build/simple_test -Iinclude/ -framework slapi
+g++ -std=c++11 -Wc++11-extensions src/simple_test.cpp -o build/simple_test -Iinclude/ -framework slapi
 
 
 
