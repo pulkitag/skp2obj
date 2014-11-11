@@ -13,16 +13,17 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 	char* model_name = argv[1];
-	std::cout << "Reading from file " << model_name <<"\n";
+	//std::cout << "Reading from file " << model_name <<"\n";
 
 	// Always initialize the API before using it
   SUInitialize();
 	
 	SkpModel myModel = SkpModel(model_name);
-	myModel.print_all_counts();
+	//myModel.print_all_counts();
 
-	char* outFile = "tmp/myobj.obj";
-	ObjWriter writer(outFile);
+	std::string outFile = "tmp/myobj.obj";
+	std::string mtlFile = "tmp/mymtl.mtl";
+	ObjWriter writer(outFile.c_str(), mtlFile.c_str());
 	writer.WriteHeader();
 	writer.WriteModel(&myModel);
 			

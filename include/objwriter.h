@@ -11,11 +11,17 @@ class ObjWriter {
 		ObjWriter(){}
 		virtual ~ObjWriter(){
 			fid_.close();
+			fid_mtl_.close();
 		}
 
-		ObjWriter(char* fileName){
-			name_ = fileName;
-			fid_.open (name_, std::ofstream::out);
+		ObjWriter(const char* fileName){
+			fid_.open (fileName, std::ofstream::out);
+		}
+
+		ObjWriter(const char* fileName, const char* fileNameMtl){
+			fid_.open (fileName, std::ofstream::out);
+			fid_mtl_.open(fileNameMtl, std::ofstream::out);
+		 	fid_mtl_.setf(std::ios::fixed, std::ios::floatfield);
 		}
 
 		void WriteHeader();
@@ -23,11 +29,12 @@ class ObjWriter {
 		void WriteFaces(SkpModel* model);
 		void WriteVertices(VecStore<GeomUtils::CPoint3d>* verts);
 		void WriteNormals (VecStore<GeomUtils::CVector3d>* normals);
+		void WriteAllMaterials (SkpModel* model);
 		void WriteMaterial (Material mat);
 
 	private:
-		char* name_;
 		std::ofstream fid_;
+		std::ofstream fid_mtl_;
 		VecStore<int> a_;
 
 };

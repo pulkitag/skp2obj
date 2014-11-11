@@ -1,5 +1,6 @@
 #include "objwriter.h"
 #include "modelUtils.h"
+#include <iomanip>
 
 void ObjWriter::WriteHeader(){
 
@@ -13,6 +14,7 @@ void ObjWriter::WriteModel(SkpModel* model){
 	WriteVertices(model->GetVertices());
 	WriteNormals(model->GetNormals());
 	WriteFaces(model);
+	WriteAllMaterials(model);
 }
 
 void ObjWriter::WriteVertices(VecStore<GeomUtils::CPoint3d>* verts){
@@ -47,22 +49,49 @@ void ObjWriter::WriteFaces(SkpModel* model){
 			fid_ << vIdx[i] + 1 << "//" << nIdx[i] + 1 << "\t";
 		}
 		fid_ <<"\n";
-		GetFaceFrontMaterial((*faces)[f]);
+		//GetFaceFrontMaterial((*faces)[f]);
+		model->AddFaceMaterial((*faces)[f]);
 	}
 }
 
-void ObjWriter::WriteMaterial(Material mat){
+void ObjWriter::WriteAllMaterials(SkpModel* model){
+	const MaterialMap mmap = *(model->GetMaterialMap());
+	for (auto& x: mmap)
+		WriteMaterial(x.second);
+}
 
-	fid_ << "newmtl \t" << mat.GetName() << "\n";
+void ObjWriter::WriteMaterial(Material mat){
+	SUResult res;
+	//fid_mtl_.precision(6);
+	fid_mtl_ << "newmtl \t" << mat.GetName() << "\n";
 	const Color Ka = mat.GetKa();
 	const Color Kd = mat.GetKd();
 	const Color Ks = mat.GetKs();
-	fid_ << "Ka \t" << Ka.r() << "\t" << Ka.g() << "\t" << Ka.b() << "\n";
-	fid_ << "Kd \t" << Kd.r() << "\t" << Kd.g() << "\t" << Kd.b() << "\n";
-	fid_ << "Ks \t" << Ks.r() << "\t" << Ks.g() << "\t" << Ks.b() << "\n";
+	fid_mtl_ << "Ka \t" << Ka.r() << "\t" << Ka.g() << "\t" << Ka.b() << "\n";
+	fid_mtl_ << "Kd \t" << Kd.r() << "\t" << Kd.g() << "\t" << Kd.b() << "\n";
+	fid_mtl_ << "Ks \t" << Ks.r() << "\t" << Ks.g() << "\t" << Ks.b() << "\n";
 
+	const bool is_opacity = mat.GetIsOpacity();
+	if (is_opacity){
+		fid_mtl_ << "d \t" << mat.GetAlpha();
+	}
+
+	/*
 	const SUMaterialType type = mat.GetType();
 	if (type == SUMaterialType_Textured || type == SUMaterialType_ColorizedTexture){
+		SUStringRef name = SU_INVALID;
+		res = SUStringCreate(&name);
+		ErrorHandler(res);
 		
+		SUTextureRef texture = mat.GetTexture();
+		res = SUTextureGetFileName(texture, &name);
+		ErrorHandler(res);
+		string fileName =  SUString2String(name);	
+		SUStringRelease(&name);
+		assert(fileName != "");
+
+		SUTextureWriteToFile(texture, fileName.c_str());
 	}
+	*/
+	fid_mtl_ << "\n";
 }

@@ -23,6 +23,7 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <unordered_map>
 #include "geomutils.h"
 
 int getModelInfo(SUEntitiesRef entities);
@@ -34,6 +35,7 @@ bool IsFaceFrontTexture(SUFaceRef face);
 bool IsFaceBackTexture(SUFaceRef face);
 void GetFaceFrontMaterial(SUFaceRef face);
 std::string GetMaterialName(SUMaterialRef material);
+std::string SUString2String(SUStringRef s);
 
 template <typename Dtype> class VecStore {
 	public:

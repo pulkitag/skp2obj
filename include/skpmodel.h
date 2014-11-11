@@ -32,15 +32,16 @@ class SkpModel {
 
 
 		int LoadVertices();
+		int AddMaterial(SUMaterialRef mat);
+		int AddFaceMaterial(SUFaceRef face);
 		//void WriteVertices();
 
 		const std::vector<SUFaceRef>* GetFaces() { return &faces_;}
-
+		const MaterialMap* GetMaterialMap() {return &mmap_;}
 		VecStore<GeomUtils::CPoint3d>* GetVertices(){
 			VecStore<GeomUtils::CPoint3d>* vertice_pointer = &vertices_;
 			return vertice_pointer;
 		}
-
 		VecStore<GeomUtils::CVector3d>* GetNormals(){
 			VecStore<GeomUtils::CVector3d>* normals_pointer = &normals_;
 			return normals_pointer;
@@ -101,6 +102,7 @@ class SkpModel {
 		std::vector<SUFaceRef> faces_;
 		VecStore<GeomUtils::CPoint3d> vertices_;
 		VecStore<GeomUtils::CVector3d> normals_;
+		MaterialMap mmap_;
 
 		void InitializeModel(){
 			num_instances_ = 0;

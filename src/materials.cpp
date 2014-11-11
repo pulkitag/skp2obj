@@ -8,12 +8,20 @@ Material::Material(SUMaterialRef material){
 	//Mat name
 	string name = GetMaterialName(material);
 	SetName(name);
-
+	if (name=="")
+		return;
 	//Opacity
 	bool use_opacity;
 	res = SUMaterialGetUseOpacity(material, &use_opacity);
 	ErrorHandler(res);
 	SetIsOpacity(use_opacity);
+	if (use_opacity){
+		double alpha;
+		res = SUMaterialGetOpacity(material, &alpha);
+		ErrorHandler(res);
+		SetAlpha(alpha);
+	}
+
 
 	//Material Type
 	SUMaterialType type;
@@ -28,15 +36,19 @@ Material::Material(SUMaterialRef material){
 	SetKd(color);
 	//std::cout << (unsigned int)color.red << "\t" << (unsigned int)color.green << "\t" << (unsigned int)color.blue << "\n";
 
+	/*	
 	SUTextureRef texture = SU_INVALID;
 	res = SUMaterialGetTexture(material, &texture);
 	switch (res){
 		case SU_ERROR_NONE:
+			std::cout <<"Setting Texture \n";
+			SetTexture(&texture);
 			break;
-			SetTexture(texture);
 		case SU_ERROR_NO_DATA:
+			std::cout <<"No Texture \n";
 			break;
 		default :
 			ErrorHandler(res);
 	}
+	*/
 }

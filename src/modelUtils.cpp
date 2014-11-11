@@ -1,4 +1,7 @@
 #include "modelUtils.h"
+#include "materials.h"
+#include <codecvt>
+#include <stdlib.h>
 
 int getModelInfo(SUEntitiesRef entities){
 
@@ -52,18 +55,61 @@ int getModelInfo(SUEntitiesRef entities){
 
 }
 
+string ws2s(const std::wstring& wstr)
+{
+    typedef std::codecvt_utf8<wchar_t> convert_typeX;
+    std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+    return converterX.to_bytes(wstr);
+}
+
+std::string CleanString(std::string s){
+	string allow = "_|.-";
+	bool keepFlag = false;
+	if (s[0] == '[')
+		s = s.substr(1,s.length()-1);
+
+	for (int i=0; i<s.length(); i++){
+		if (s[i] >= 'a' && s[i] <= 'z')
+			continue;
+		if (s[i] >= 'A' && s[i] <= 'Z')
+			continue;
+		if (s[i] >='0' && s[i] <= '9')
+			continue;
+
+		keepFlag = false;
+		for (int j=0; j< allow.length(); j++){
+			keepFlag = keepFlag || allow[j]==s[i];
+		}
+		if (!keepFlag)
+			s[i] = '_';
+	}
+	return s;
+
+}
 
 std::string SUString2String(SUStringRef s){
 	SUResult res;
-	size_t len;
+	size_t len, wlen;
 	std::string sss;
 	res = SUStringGetUTF8Length(s, &len);
 	ErrorHandler(res);
+	res = SUStringGetUTF16Length(s, &wlen);
+	ErrorHandler(res);
 
 	if (len > 0){
+		//unichar ss[len];
+		//char    ch[500];
 		char ss[len];
+		unichar wss[wlen];
 		SUStringGetUTF8(s, len, &ss[0], &len);
-		sss.assign(ss); 
+		SUStringGetUTF16(s, wlen, &wss[0], &wlen);
+
+		//const wchar_t* wch = &ss[0];
+		//wcstombs (ch, wch, sizeof(ch))	
+		sss.assign(ss);
+		sss = CleanString(sss);
+	 	//std::cout << sss.c_str() << "\n";	
 	}else{
 		sss = "";
 	}
@@ -143,20 +189,44 @@ void ErrorHandler(SUResult res){
 
 	std::cout << "ERROR DETECTED \n";
 	switch (res){
-		case SU_ERROR_NULL_POINTER_OUTPUT:
-			std::cout << "Error: Null Pointer Output \n";
-			break;
-		case SU_ERROR_OVERWRITE_VALID:
-			std::cout << "SU_ERROR_OVERWRITE_VALID \n";
+		case SU_ERROR_NULL_POINTER_INPUT:
+			std::cout << "SU_ERROR_NULL_POINTER_INPUT \n";
 			break;
 		case SU_ERROR_INVALID_INPUT:
 			std::cout << "SU_ERROR_INVALID_INPUT \n";
 			break;
-		case SU_ERROR_NULL_POINTER_INPUT:
-			std::cout << "SU_ERROR_NULL_POINTER_INPUT \n";
+		case SU_ERROR_NULL_POINTER_OUTPUT:
+			std::cout << "Error: Null Pointer Output \n";
 			break;
 		case SU_ERROR_INVALID_OUTPUT:
 			std::cout << "SU_ERROR_INVALID_OUTPUT \n";
+			break;
+		case SU_ERROR_OVERWRITE_VALID:
+			std::cout << "SU_ERROR_OVERWRITE_VALID \n";
+			break;
+		case SU_ERROR_GENERIC:
+			std::cout << "SU_ERROR_GENERIC \n";
+			break;
+		case SU_ERROR_SERIALIZATION:
+			std::cout << "SU_ERROR_SERIALIZATION \n";
+			break;
+		case SU_ERROR_OUT_OF_RANGE:
+			std::cout <<"SU_ERROR_OUT_OF_RANGE \n";
+			break;
+		case	SU_ERROR_NO_DATA:
+		 	std::cout <<"SU_ERROR_NO_DATA \n";
+			break;
+		case SU_ERROR_INSUFFICIENT_SIZE:
+			std::cout << "SU_ERROR_INSUFFICIENT_SIZE \n";
+			break;
+		case SU_ERROR_UNKNOWN_EXCEPTION:
+			std::cout <<"SU_ERROR_UNKNOWN_EXCEPTION \n";		
+			break;
+		case SU_ERROR_MODEL_INVALID:
+			std::cout <<"SU_ERROR_MODEL_INVALID \n";
+			break;
+		case SU_ERROR_MODEL_VERSION: 
+			std::cout <<"SU_ERROR_MODEL_INVALID \n";
 			break;
 		default:
 			std::cout << "Unlisted Error \n";
@@ -260,7 +330,9 @@ void GetFaceFrontMaterial(SUFaceRef face){
 	res = SUFaceGetFrontMaterial(face, &material);
 	
 	if (res == SU_ERROR_NONE){
-
+	
+		Material mat = Material(material);
+		/*
 		std::cout << GetMaterialName(material) <<  "\n";
 
 		bool use_opacity;
@@ -275,8 +347,7 @@ void GetFaceFrontMaterial(SUFaceRef face){
 		res = SUMaterialGetColor(material, &color);
 		ErrorHandler(res);
 		std::cout << (unsigned int)color.red << "\t" << (unsigned int)color.green << "\t" << (unsigned int)color.blue << "\n"; 
-			
+		*/
 	}
-
 }
 

@@ -6,7 +6,7 @@ int SkpModel::CountAllComponents(){
 	int out = 0;
 
 	LoadEntities();
-	std::cout <<"NumEntities: " << entities_.size() << "\n";
+	//std::cout <<"NumEntities: " << entities_.size() << "\n";
 	for (int i=0; i<entities_.size(); i++){
 		out += Entities2AllComponentCount(entities_[i]);
 	}
@@ -298,6 +298,53 @@ int SkpModel::Face2AttributeIndices(SUFaceRef face, std::vector<size_t>* vertIdx
 	}
 
 	return out;	
+}
+
+int SkpModel::AddMaterial(SUMaterialRef mat){
+	std::string name = GetMaterialName(mat);
+	if (name=="")
+		return 0;
+	
+	for (auto& x: mmap_){
+		if (x.first==name)
+			return 0;
+	}
+
+	//std::cout << name << "\n";
+	Material MyMat = Material(mat);
+	//std::cout << "Material Created" << "\n";
+	mmap_.emplace(name, MyMat);
+	//std::cout << "Material Added" << "\n";
+	return 0;
+}
+
+int SkpModel::AddFaceMaterial(SUFaceRef face){
+	if (face.ptr==0)
+		std::cout << "Null Face \n";
+
+	SUResult res;
+	SUMaterialRef material = SU_INVALID;
+	res = SUFaceGetFrontMaterial(face, &material);
+	if (res == SU_ERROR_NONE){
+		AddMaterial(material);	
+	}
+	if (res != SU_ERROR_NO_DATA)
+		ErrorHandler(res);
+	//SUMaterialRelease(&material);
+
+	
+	material = SU_INVALID;
+	res = SUFaceGetBackMaterial(face, &material);
+	if (res == SU_ERROR_NONE){
+		AddMaterial(material);	
+		//res = SUMaterialRelease(&material);
+		//ErrorHandler(res);
+	}
+	if (res != SU_ERROR_NO_DATA)
+		ErrorHandler(res);
+
+	
+	return 0;
 }
 
 
