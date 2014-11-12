@@ -13,6 +13,7 @@ void ObjWriter::WriteHeader(){
 void ObjWriter::WriteModel(SkpModel* model){
 	WriteVertices(model->GetVertices());
 	WriteNormals(model->GetNormals());
+	WriteStqcoords(model->GetStqcoordsFront());
 	WriteFaces(model);
 	WriteAllMaterials(model);
 }
@@ -34,23 +35,32 @@ void ObjWriter::WriteNormals(VecStore<GeomUtils::CVector3d>* normals){
 	}	
 }
 
+void ObjWriter::WriteStqcoords(VecStore<GeomUtils::CPoint3d>* coords){
+	size_t len = coords->length();
+	for (size_t i=0; i<len; i++){
+		const GeomUtils::CPoint3d pt = coords->get(i);
+		fid_ << "vt\t" << pt.x() << "\t" << pt.y() << "\t" << pt.z() << "\n";
+	}	
+}
+
 void ObjWriter::WriteFaces(SkpModel* model){
 	const std::vector<SUFaceRef>* faces = model->GetFaces();	
 	for (size_t f=0; f < faces->size(); f ++){
 		size_t num_vertices = Face2NumVertices((*faces)[f]);
 		std::vector<size_t> vIdx(num_vertices);
 		std::vector<size_t> nIdx(num_vertices);
-		model->Face2AttributeIndices((*faces)[f], &vIdx, &nIdx);
+		std::vector<size_t> fIdx(num_vertices);
+
+		model->Face2AttributeIndices((*faces)[f], &vIdx, &nIdx, &fIdx);
 		assert(vIdx.size() == num_vertices);
 		fid_ << "f\t";
 		for (size_t i=0; i<num_vertices; i++){
 			assert(vIdx[i]>=0);
 			assert(nIdx[i]>=0);
-			fid_ << vIdx[i] + 1 << "//" << nIdx[i] + 1 << "\t";
+			assert(fIdx[i]>=0);
+			fid_ << vIdx[i] + 1 << "/" << fIdx[i] + 1 << "/" << nIdx[i] + 1 << "\t";
 		}
 		fid_ <<"\n";
-		//GetFaceFrontMaterial((*faces)[f]);
-		model->AddFaceMaterial((*faces)[f]);
 	}
 }
 

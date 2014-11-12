@@ -22,6 +22,7 @@ class SkpModel {
 			faces_.reserve(num_faces_);
 			LoadFaces();
 			LoadVertices();
+			LoadMaterials();
 		}
 
 		virtual ~SkpModel(void){
@@ -32,11 +33,14 @@ class SkpModel {
 
 
 		int LoadVertices();
+		int LoadMaterials();
 		int AddMaterial(SUMaterialRef mat);
 		int AddFaceMaterial(SUFaceRef face);
 		//void WriteVertices();
 
 		const std::vector<SUFaceRef>* GetFaces() { return &faces_;}
+		VecStore<GeomUtils::CPoint3d>* GetStqcoordsFront() {return &stqcoords_front_;}
+		VecStore<GeomUtils::CPoint3d>* GetStqcoordsBack() {return &stqcoords_back_;}
 		const MaterialMap* GetMaterialMap() {return &mmap_;}
 		VecStore<GeomUtils::CPoint3d>* GetVertices(){
 			VecStore<GeomUtils::CPoint3d>* vertice_pointer = &vertices_;
@@ -47,7 +51,7 @@ class SkpModel {
 			return normals_pointer;
 		}
 
-		int Face2AttributeIndices(SUFaceRef face, std::vector<size_t>* vertIdxs, std::vector<size_t>* normalIdxs);
+		int Face2AttributeIndices(SUFaceRef face, std::vector<size_t>* vertIdxs, std::vector<size_t>* normalIdxs, std::vector<size_t>* fIdxs);
 		//int Face2VertexIndices(SUFaceRef face);
 		//int Face2NormalIndices(SUFaceRef face);
 
@@ -102,6 +106,8 @@ class SkpModel {
 		std::vector<SUFaceRef> faces_;
 		VecStore<GeomUtils::CPoint3d> vertices_;
 		VecStore<GeomUtils::CVector3d> normals_;
+		VecStore<GeomUtils::CPoint3d> stqcoords_front_;
+		VecStore<GeomUtils::CPoint3d> stqcoords_back_;
 		MaterialMap mmap_;
 
 		void InitializeModel(){

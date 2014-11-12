@@ -29,6 +29,7 @@ class ObjWriter {
 		void WriteFaces(SkpModel* model);
 		void WriteVertices(VecStore<GeomUtils::CPoint3d>* verts);
 		void WriteNormals (VecStore<GeomUtils::CVector3d>* normals);
+		void WriteStqcoords(VecStore<GeomUtils::CPoint3d>* coords);
 		void WriteAllMaterials (SkpModel* model);
 		void WriteMaterial (Material* mat);
 

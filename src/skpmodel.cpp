@@ -250,7 +250,22 @@ int SkpModel::LoadVertices(){
 		res = SUMeshHelperGetNormals (mesh, num_vertices, &normals[0], &num_vertices);
 		ErrorHandler(res);
 		normals_.add(normals);
-		
+
+		//Front Texture Coordinates
+		std::vector<SUPoint3D> texture_coords(num_vertices);
+		size_t num_coords;
+		res = SUMeshHelperGetFrontSTQCoords(mesh, num_vertices, &texture_coords[0], &num_coords);
+		ErrorHandler(res);
+		assert(num_coords == num_vertices);
+		stqcoords_front_.add(texture_coords);
+
+		//Back Texture Coordinates
+		std::vector<SUPoint3D> texture_coords_back(num_vertices);
+		res = SUMeshHelperGetFrontSTQCoords(mesh, num_vertices, &texture_coords_back[0], &num_coords);
+		ErrorHandler(res);
+		assert(num_coords == num_vertices);
+		stqcoords_back_.add(texture_coords_back);
+
 		SUMeshHelperRelease(&mesh);
 		//*/
 		/*
@@ -265,7 +280,8 @@ int SkpModel::LoadVertices(){
 	return out;
 }
 
-int SkpModel::Face2AttributeIndices(SUFaceRef face, std::vector<size_t>* vertIdxs, std::vector<size_t>* normalIdxs){
+int SkpModel::Face2AttributeIndices(SUFaceRef face, std::vector<size_t>* vertIdxs,
+	 								std::vector<size_t>* normalIdxs, std::vector<size_t>* fIdxs){
 	int out = 0;
 	SUResult res;
 
@@ -288,16 +304,30 @@ int SkpModel::Face2AttributeIndices(SUFaceRef face, std::vector<size_t>* vertIdx
 	std::vector<SUVector3D>  normals(num_vertices);
 	res = SUMeshHelperGetNormals (mesh, num_vertices, &normals[0], &num_vertices);
 	ErrorHandler(res);
-	
+
+	//Get Front Texture indices
+	std::vector<SUPoint3D>  fcoords(num_vertices);
+	res = SUMeshHelperGetFrontSTQCoords(mesh, num_vertices, &fcoords[0], &num_vertices);
+	ErrorHandler(res);
+
 	SUMeshHelperRelease(&mesh);
 	assert(vertIdxs->size() == num_vertices);
 
 	for (size_t i =0; i < num_vertices; i++){
 		vertIdxs->at(i)   = vertices_.get_index(vertices[i]);
 		normalIdxs->at(i) = normals_.get_index(normals[i]);
+		fIdxs->at(i)      = stqcoords_front_.get_index(fcoords[i]);
 	}
 
 	return out;	
+}
+
+int SkpModel::LoadMaterials(){
+	int out = 0;
+	for (int f=0; f<faces_.size(); f++){
+		AddFaceMaterial(faces_[f]);
+	}
+	return out;
 }
 
 int SkpModel::AddMaterial(SUMaterialRef mat){
